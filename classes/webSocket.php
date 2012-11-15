@@ -181,6 +181,7 @@ class webSocket implements serverCallbacks
 
    public function createFrame($data)
    {
+      ///TODO this is waiting for a new code.
       $frame = Array();
       $encoded = "";
       $frame[0] = 0x81;
