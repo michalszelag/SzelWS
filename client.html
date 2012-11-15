@@ -1,0 +1,28 @@
+<script language="javascript">
+     var ws = new WebSocket("ws://localhost:3122/echo");
+     ws.onopen = function()
+     {
+        // Web Socket is connected, send data using send()
+        //ws.send("BAAA12345YXXXto sendMessage to sendMessage to sendMessage to sendMessage to sendMessage to sendMessage to sendMessage to send");
+        document.getElementById("ts").value+="WS OPENED\n";
+        //alert("WS OPENED");
+     };
+     ws.onmessage = function (evt)
+     {
+        var received_msg = evt.data;
+        document.getElementById("ts").value+="Message is received:"+received_msg+"\n";
+     };
+     ws.onclose = function()
+     {
+        // websocket is closed.
+        document.getElementById("ts").value+="Connection is closed!\n";
+     };
+
+//var Socket = new WebSocket("wss://127.0.0.1:3122/");
+   console.log(ws);
+</script>
+<a href="javascript:ws.send('XXto sendMessage to sendMessage to sendMessage to sendMessage to sendMessage to sendMessage to sendMessage to send');">long</a><br />
+<a href="javascript:ws.send('XXX');">long</a><br />
+<a href="javascript:ws.send('1BAAA12345YXXXto sendMessage to sendMessage to sendMessage to sendMessage to sendMessage to sendMessage to sendMessage to send');">TO long</a>
+<hr />
+<textarea id="ts"></textarea>
