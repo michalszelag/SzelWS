@@ -17,7 +17,7 @@ class webSocket implements serverCallbacks
    const ft_pong = 0x0a;
 
    private $clients=array();
-   public function onConnect(socketSserver $ser,$cliid)
+   public function onConnect(socketServer $ser,$cliid)
    {
       $this->clients[$cliid]=array(
          "id"=>$cliid,
@@ -39,14 +39,14 @@ class webSocket implements serverCallbacks
       foreach($this->clients as $cliid=>$clidata) $ser->write($cliid,$this->make_frame($message));
    }
 
-   public function onDisconnect(socketSserver $ser,$cliid)
+   public function onDisconnect(socketServer $ser,$cliid)
    {
       debug("Client DISconnected: ".$cliid);
       unset($this->clients[$cliid]);
       //foreach($ser->getClients() as $cli) if($cli!=$cliid) $ser->write($cli,"Client disconnected:".$cliid."\n");
    }
 
-   public function onMessage(socketSserver $ser,$cliid,$message)
+   public function onMessage(socketServer $ser,$cliid,$message)
    {
       if(!($this->clients[$cliid]["handshake"]))
       {
@@ -98,7 +98,7 @@ class webSocket implements serverCallbacks
       }
    }
 
-   private function onWSmessage(socketSserver $ser,$cliid,$message)
+   private function onWSmessage(socketServer $ser,$cliid,$message)
    {
       debug("MESSAGE[".$cliid."]:".$message);
    }

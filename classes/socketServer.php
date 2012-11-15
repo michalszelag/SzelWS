@@ -1,13 +1,13 @@
 <?
 
 interface serverCallbacks{
-   public function onConnect(socketSserver $ser,$cliid);
-   public function onDisconnect(socketSserver $ser,$cliid);
-   public function onMessage(socketSserver $ser,$cliid,$message);
+   public function onConnect(socketServer $ser,$cliid);
+   public function onDisconnect(socketServer $ser,$cliid);
+   public function onMessage(socketServer $ser,$cliid,$message);
 }
 
 
-class socketSserver
+class socketServer
 {
    private $master;
    private $clients;

@@ -5,13 +5,15 @@
 ///TODO 5) make instruction how to compile php to handle 60k connections.
 ///TODO 6) A better debuger
 ///TODO 7) Think how to connect multiple WS servers
+///TODO 8) Make a clients and try to get this server down and think about socket blocking (slow writing slow reading).
 
-require("classes/server.php");
+
+require("classes/socketServer.php");
 require("classes/webSocket.php");
 
 $callback=new webSocket;
-//$server=new socketSserver("tcp://0.0.0.0:3122","server.pem",10,$callback);
-$server=new socketSserver("tcp://0.0.0.0:3122",false,10,$callback);
+//$server=new socketServer("tcp://0.0.0.0:3122","server.pem",10,$callback);
+$server=new socketServer("tcp://0.0.0.0:3122",false,10,$callback);
 
 function debug($msg)
 {
