@@ -1,5 +1,10 @@
 <?php
 
+///TODO 1) Ping pongs and save time of the last contact ping pong all clients every 30 secs!
+///TODO 2) make some code that protects from attacts
+///TODO 3) solve the problem with very big frames, this will solve the problem of the sign bit of the integer too.
+///TODO 4) the documentation
+
 class webSocket implements serverCallbacks
 {
    const ft_continuation = 0x00;
@@ -30,7 +35,8 @@ class webSocket implements serverCallbacks
    public function sendAll($ser,$message)
    {
       debug("SENDING MESSAGE: ".$message);
-      foreach($this->clients as $cliid=>$clidata) $ser->write($cliid,$this->createFrame($message));
+      //echo $this->make_frame($message)."\n\n";
+      foreach($this->clients as $cliid=>$clidata) $ser->write($cliid,$this->make_frame($message));
    }
 
    public function onDisconnect(socketSserver $ser,$cliid)
@@ -122,6 +128,7 @@ class webSocket implements serverCallbacks
          $l2=array_pop(unpack("N",substr($raw,2,4)));
          $len=$l1*0x0100000000+$l2;
          $raw=substr($raw,4);
+         ///TODO php 64 bit integer is SIGNED, so think here about this!!!
       }else $len=$pay7;
 
       $maskValue="";
@@ -179,30 +186,23 @@ class webSocket implements serverCallbacks
       return $head2;
    }
 
-   public function createFrame($data)
+   public function make_frame($data)
    {
-      ///TODO this is waiting for a new code.
-      $frame = Array();
-      $encoded = "";
-      $frame[0] = 0x81;
-      $data_length = strlen($data);
+      $len=strlen($data);
+      if($len>(0x7FFFFFFFFFFFFFFF)) return false;
 
-      if($data_length <= 125){
-      $frame[1] = $data_length;
-      }else{
-      $frame[1] = 126;
-      $frame[2] = $data_length >> 8;
-      $frame[3] = $data_length & 0xFF;
-      ///TODO make it better so it supports verry LONG messages
-      }
+      $firstByte=0x80|self::ft_text;
 
-      for($i=0;$i<sizeof($frame);$i++){
-      $encoded .= chr($frame[$i]);
-      }
+      if($len<126) $pay7=$len;
+      elseif($len<=0xFFFF) $pay7=126;
+      else $pay7=127;
 
-      $encoded .= $data;
-      return $encoded;
+      $secondByte=0x00|$pay7;
+      $raw=chr($firstByte).chr($secondByte);
 
+      if($pay7==126) $raw.=pack("n",$len);
+      elseif($pay7==127) $raw.=pack("N",$len>>32).pack("N",$len&0xFFFFFFFF);
+
+      return $raw.$data;
    }
 }
- 
