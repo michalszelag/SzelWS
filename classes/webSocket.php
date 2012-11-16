@@ -1,9 +1,5 @@
 <?php
 
-///TODO 2) make some code that protects from attacts
-///TODO 3) solve the problem with very big frames, this will solve the problem of the sign bit of the integer too.
-///TODO 4) the documentation
-
 class webSocket implements serverCallbacks
 {
    const ft_continuation = 0x00;

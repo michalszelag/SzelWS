@@ -1,0 +1,7 @@
+2) make some code that protects from attacts
+3) solve the problem with very big frames, this will solve the problem of the sign bit of the integer too.
+4) the documentation
+5) make instruction how to compile php to handle 60k connections.
+6) A better debuger
+7) Think how to connect multiple WS servers
+8) Make some clients and try to get this server down and think about socket blocking (slow writing slow reading).

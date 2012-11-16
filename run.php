@@ -1,13 +1,6 @@
 #!/usr/bin/php
 <?
 
-///TODO 4) the documentation
-///TODO 5) make instruction how to compile php to handle 60k connections.
-///TODO 6) A better debuger
-///TODO 7) Think how to connect multiple WS servers
-///TODO 8) Make a clients and try to get this server down and think about socket blocking (slow writing slow reading).
-
-
 require("classes/socketServer.php");
 require("classes/webSocket.php");
 
