@@ -112,6 +112,7 @@ class webSocket implements serverCallbacks
             if($parsed["fin"]&&$parsed["opcode"]==self::ft_pong)
             {
                $this->clients[$cliid]["ping_sent"]=false;
+               $this->clients[$cliid]["message_comming"]="";
 
             }elseif($parsed["fin"])
             {
