@@ -1,6 +1,5 @@
 <?php
 
-///TODO 1) Ping pongs and save time of the last contact ping pong all clients every 30 secs!
 ///TODO 2) make some code that protects from attacts
 ///TODO 3) solve the problem with very big frames, this will solve the problem of the sign bit of the integer too.
 ///TODO 4) the documentation
@@ -15,6 +14,8 @@ class webSocket implements serverCallbacks
 
    const ft_ping = 0x09;
    const ft_pong = 0x0a;
+   const ping_secs=10; /// set to 10 for tests normal set it to 30-60 secs or more
+   const ping_wait=3; /// how long to wait for a pong after ping
 
    private $clients=array();
    public function onConnect(socketServer $ser,$cliid)
@@ -26,10 +27,29 @@ class webSocket implements serverCallbacks
          "headers"=>"",
          "handshake"=>false,
          "sec-websocket-key"=>false,
+         "last_contact"=>time(),
+         "ping_sent"=>false,
       );
       debug("Client connected: ".$cliid);
          //$cliid;
       //foreach($ser->getClients() as $cli) if($cli!=$cliid) $ser->write($cli,"New client:".$cliid."\n");
+   }
+
+   public function sendPings(socketServer $ser)
+   {
+      $ping_frame=chr(0x89).chr(0x00);
+      $actual_time=time();
+      foreach($this->clients as $cliid=>&$client) if($client["last_contact"]+self::ping_secs<$actual_time&&!($client["ping_sent"]))
+      {
+         $client["ping_sent"]=time();
+         $ser->write($cliid,$ping_frame);
+         debug("PING SENT[".$cliid."]");
+         //print_r($this->clients[$cliid]);
+      }elseif($client["last_contact"]+self::ping_secs<$actual_time&&$client["ping_sent"]+self::ping_wait<$actual_time)
+      {
+         $ser->clientDisconnect($cliid);
+         unset($this->clients[$cliid]);
+      }
    }
 
    public function sendAll($ser,$message)
@@ -80,19 +100,25 @@ class webSocket implements serverCallbacks
       {
 
          debug("SOCKET MESSAGE[".$cliid."]:".strlen($message));
+         //for($i=0,$n=strlen($message);$i<$n;$i++) echo sprintf("%x",ord($message[$i])).":";echo "\n";
          $this->clients[$cliid]["unparsed"].=$message;
 
          $parsed=$this->parse_frame($this->clients[$cliid]["unparsed"]);
-         if($parsed===false) ; ///TODO ping-pong support  what the fuck mak ping-pong too and close the socket by the third time it happends.
+         if($parsed===false) ; ///TODO close the socket by the third time it happends.
          else
          {
             $this->clients[$cliid]["unparsed"]=$parsed["nextFrame"];
             $this->clients[$cliid]["message_comming"].=$parsed["decoded"];
-            if($parsed["fin"])
+            if($parsed["fin"]&&$parsed["opcode"]==self::ft_pong)
+            {
+               $this->clients[$cliid]["ping_sent"]=false;
+
+            }elseif($parsed["fin"])
             {
                $this->onWSmessage($ser,$cliid,$this->clients[$cliid]["message_comming"]);
                $this->clients[$cliid]["message_comming"]="";
             }
+            $this->clients[$cliid]["last_contact"]=time();
             ///TODO there can be another message that is in the next frame and unparsed we should make this in while, but with a good error support from parse_frame
          }
       }
@@ -114,7 +140,6 @@ class webSocket implements serverCallbacks
       $mask=$secondByte&0x80;
       $pay7=$secondByte&0x7F;
 
-      ///TODO ping-pong support check opcode if it is a pong?!
       $raw=substr($data,2);
       if(strlen($raw)<$pay7) return false;
 

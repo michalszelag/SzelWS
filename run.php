@@ -36,7 +36,7 @@ function doOtherThings($server,$callback)
    {
       $callback->sendAll($server,trim($x));
       //echo "STDIN message: ".str_replace("\n","^M",$x)."\n-----\n";
-   }
+   }else $callback->sendPings($server);
 }
 
 
